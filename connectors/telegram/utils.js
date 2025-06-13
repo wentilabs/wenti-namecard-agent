@@ -56,7 +56,7 @@ async function startTelegramWebhook(customWebhookUrl) {
 async function sendTelegramAction(chatId, action) {
   const url = `https://api.telegram.org/bot${telegramBotToken}/sendChatAction`;
 
-  console.log('url: ', url);
+//   console.log('url: ', url);
 
   await axios.post(url, {
     chat_id: chatId,

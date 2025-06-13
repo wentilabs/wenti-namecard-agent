@@ -14,8 +14,9 @@ async function agentExtraction(message){
         full_name: 'Full Name',
         first_name: 'First Name',
         email: 'Email',
-        company_name: 'Company',
-        mobile: 'Mobile'
+        company: 'Company',
+        mobile: 'Mobile',
+        remarks: 'Remarks'
     };
 
     if (!message.photo || message.photo.length === 0) {
@@ -26,7 +27,7 @@ async function agentExtraction(message){
     const photoId = message.photo[message.photo.length - 1].file_id;
     const photoUrl = await getPhotoUrl(photoId);
 
-    console.log('Telegram photoUrl:', photoUrl);
+    // console.log('Telegram photoUrl:', photoUrl);
     
     // Set the mediaUrl for OpenAI to process
     message.mediaUrl = photoUrl;
@@ -94,21 +95,35 @@ async function agentExtraction(message){
         
         // Process the response from OpenAI
         if (response.status === 'completed') {
-            // Check if there was a tool call in the response
-            if (response.output && response.output.length  > 0) {
+            // Check if there was a tool call in the response and make sure the tool call is extract_namecard_data
+            if (response.output && response.output.length  > 0 && response.output[0].name === 'extract_namecard_data') {
                 const toolCall = response.output[0]; // Get the first tool call
                 
                 // Parse the tool call arguments
                 const extractedData = JSON.parse(toolCall.arguments || '{}');
+                
+                // Add caption as remarks if available
+                if (message.caption) {
+                    extractedData.remarks = message.caption;
+                    console.log('Added caption as remarks:', message.caption);
+                }
 
                 
                 // Format the extracted data for display
                 let formattedResult = "✅ Name Card Extracted\n\n";
-                Object.entries(fieldLabels).forEach(([key, label]) => {
-                    if (extractedData[key]) {
-                        formattedResult += `${label}: ${extractedData[key]}\n`;
-                    }
-                });
+                // Display all fields except remarks first
+                Object.entries(fieldLabels)
+                    .filter(([key]) => key !== 'remarks')
+                    .forEach(([key, label]) => {
+                        if (extractedData[key]) {
+                            formattedResult += `${label}: ${extractedData[key]}\n`;
+                        }
+                    });
+                
+                // Add remarks at the end if available
+                if (extractedData.remarks) {
+                    formattedResult += `\nRemarks: ${extractedData.remarks}\n`;
+                }
                 
                 // Save the extracted data to Google Sheets
                 try {
