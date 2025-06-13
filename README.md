@@ -121,7 +121,7 @@ Either method will start a local server to make your development environment acc
    - `GOOGLE_SHEETS_ID`
    - `GOOGLE_SERVICE_ACCOUNT_EMAIL`
    - `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`
-3. Set up your webhook URL with Telegram: `https://your-worker.your-subdomain.workers.dev/telegram-webhook`
+3. After deployment, visit `https://your-worker.your-subdomain.workers.dev/setup-webhook` to automatically configure the Telegram webhook
 
 ### Manual Deployment with Wrangler
 
@@ -144,6 +144,8 @@ npm run deploy
 ```
 
 ### AWS Lambda Deployment
+
+For detailed Cloudflare Workers deployment instructions, refer to the [CLOUDFLARE.md](CLOUDFLARE.md) file.
 
 For AWS Lambda deployment instructions, refer to the [DEPLOYMENT.md](DEPLOYMENT.md) file, which includes:
 

@@ -17,6 +17,10 @@ name = "wenti-namecard-agent-dev"
 NODE_ENV = "production"
 WEBHOOKPATH = "/telegram-webhook"
 
+[[kv_namespaces]]
+binding = "WENTI_SECRET_STORE"
+id = "5be5c3ee647346e888593590a88a16a7"
+
 # For sensitive variables, use Cloudflare Dashboard or wrangler secret command:
 # wrangler secret put TELEGRAM_BOT_TOKEN
 # wrangler secret put OPENAI_API_KEY
