@@ -4,7 +4,6 @@ A Telegram bot that extracts structured data from business cards using OpenAI's 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-
 ## 🌟 Features
 
 - 📸 **Image Processing**: Extract structured data from business card photos sent via Telegram
@@ -60,6 +59,7 @@ GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY=your_private_key
 ### 4. Set up Google Sheet
 
 Create a Google Sheet with the following headers in a tab named "crm":
+
 - Timestamp
 - Full Name
 - First Name

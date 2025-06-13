@@ -20,7 +20,6 @@ This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambd
 4. BotFather will provide you with a token - save this as your `TELEGRAM_BOT_TOKEN`
 5. Set up your bot's commands with `/setcommands` and add any custom commands
 
-
 ### 2. OpenAI API Setup
 
 1. Create an account at [OpenAI](https://openai.com/)
@@ -33,11 +32,13 @@ This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambd
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project
 3. Enable the Google Sheets API:
+
    - Navigate to "APIs & Services" > "Library"
    - Search for "Google Sheets API"
    - Click "Enable"
 
 4. Create a service account:
+
    - Go to "APIs & Services" > "Credentials"
    - Click "Create Credentials" > "Service Account"
    - Fill in the service account details and click "Create"
@@ -45,6 +46,7 @@ This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambd
    - Complete the creation process
 
 5. Generate a key for your service account:
+
    - Click on the service account you just created
    - Go to the "Keys" tab
    - Click "Add Key" > "Create new key"
@@ -52,6 +54,7 @@ This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambd
    - The key file will be downloaded to your computer
 
 6. From the downloaded JSON file, extract:
+
    - `client_email` as your `GOOGLE_SERVICE_ACCOUNT_EMAIL`
    - `private_key` as your `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`
 
@@ -65,19 +68,21 @@ This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambd
 ### 4. AWS Lambda Deployment
 
 1. Prepare your code for Lambda:
+
    ```bash
    # Clone the repository
    git clone https://github.com/your-username/wenti-namecard-agent.git
    cd wenti-namecard-agent
-   
+
    # Install dependencies
    npm install
-   
+
    # Create a ZIP file for Lambda
    zip -r function.zip .
    ```
 
 2. Create a Lambda function:
+
    - Go to the [AWS Lambda Console](https://console.aws.amazon.com/lambda)
    - Click "Create function"
    - Select "Author from scratch"
@@ -87,11 +92,13 @@ This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambd
    - Click "Create function"
 
 3. Upload your code:
+
    - In the function overview, scroll to the "Code source" section
    - Click "Upload from" > ".zip file"
    - Upload your function.zip file
 
 4. Configure environment variables:
+
    - Scroll down to the "Configuration" tab
    - Click "Environment variables"
    - Add all the required environment variables:
@@ -104,11 +111,13 @@ This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambd
      - `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (make sure to include all newlines, may require escaping)
 
 5. Configure Lambda settings:
+
    - Increase the timeout to at least 30 seconds (recommended: 1 minute)
    - Increase memory allocation to at least 512MB
    - Under "General configuration", click "Edit" and make these changes
 
 6. Create an API Gateway trigger:
+
    - Click "Add trigger"
    - Select "API Gateway"
    - Create a new API: HTTP API
@@ -116,6 +125,7 @@ This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambd
    - Click "Add"
 
 7. Configure the webhook:
+
    - After API Gateway is created, copy the API endpoint URL
    - Set the `WEBHOOKURL` to this URL
    - Set the `WEBHOOKPATH` to `/telegram-webhook`
@@ -135,20 +145,24 @@ This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambd
 ## Troubleshooting
 
 ### Webhook Issues
+
 - Ensure the webhook URL is correct and publicly accessible
 - Check if API Gateway is properly configured
 - Verify that the Telegram Bot Token is valid
 
 ### Lambda Execution Issues
+
 - Check CloudWatch logs for error messages
 - Ensure all environment variables are set correctly
 - Verify that the Lambda has sufficient timeout and memory settings
 
 ### Image Processing Issues
+
 - Ensure that the OpenAI API key has access to GPT-4 Vision
 - Check if the image format is supported
 
 ### Google Sheets Integration Issues
+
 - Ensure the service account has Editor access to the sheet
 - Verify that the correct Sheet ID is being used
 - Check that the sheet has a tab named "crm"
@@ -156,16 +170,21 @@ This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambd
 ## Additional Configuration Options
 
 ### Custom Domain
+
 To use a custom domain with your API Gateway:
+
 1. Register a domain and set up an SSL certificate using AWS Certificate Manager
 2. Create a custom domain name in API Gateway
 3. Configure DNS settings to point to the API Gateway endpoint
 
 ### CloudFormation/Terraform Deployment
+
 For production use, consider using Infrastructure as Code (IaC) tools like CloudFormation or Terraform to manage your AWS resources.
 
 ### Monitoring
+
 Set up CloudWatch Alarms to monitor Lambda execution errors and response times.
 
 ### Cost Management
+
 Configure AWS Budgets to track and manage costs for your Lambda function, API Gateway, and other AWS services.

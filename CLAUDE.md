@@ -33,11 +33,13 @@ GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY=your_private_key
 ## Development Commands
 
 To install all dependencies:
+
 ```bash
 npm install
 ```
 
 To run the bot in development mode:
+
 ```bash
 node dev-index.js
 ```
@@ -45,6 +47,7 @@ node dev-index.js
 This starts a local server with an ngrok tunnel for webhook testing.
 
 For production deployment:
+
 ```bash
 # The project uses index.js as the entry point for deployment
 # AWS Lambda or similar serverless platform recommended
@@ -55,14 +58,17 @@ For production deployment:
 The project follows a modular architecture:
 
 1. **Webhook Receiver**: `index.js` (production) or `dev-index.js` (development)
+
    - Receives webhook events from Telegram
    - Routes to appropriate handlers
 
 2. **Telegram Connector**: `connectors/telegram/`
+
    - `index.js`: Contains the main `telegramHandler` function
    - `utils.js`: Telegram API utilities for webhook setup, sending messages, and file handling
 
 3. **Agent Logic**: `agent.js`
+
    - Core business logic for image processing
    - Orchestrates the extraction flow:
      1. Download and store images from Telegram to Supabase
@@ -103,7 +109,10 @@ async function telegramHandler(event) {
   }
   // Send instructions for non-photo messages
   else {
-    await sendTelegramMessage(chatId, "Please send me a photo of a business card to extract information.");
+    await sendTelegramMessage(
+      chatId,
+      'Please send me a photo of a business card to extract information.',
+    );
   }
 }
 ```
@@ -117,7 +126,7 @@ async function agentExtraction(message) {
   // Get the largest photo version from Telegram
   const photoId = message.photo[message.photo.length - 1].file_id;
   const photoUrl = await getPhotoUrl(photoId);
-  
+
   // Call OpenAI with function calling for structured extraction
   const response = await openai.responses.create({
     model: 'gpt-4.1',
@@ -125,9 +134,9 @@ async function agentExtraction(message) {
     tools: [...], // Function definitions for structured extraction
     store: false
   });
-  
+
   // Process the response and format extracted data
-  if (response.output && response.output.length > 0 && 
+  if (response.output && response.output.length > 0 &&
       response.output[0].name === 'extract_namecard_data') {
     const extractedData = JSON.parse(response.output[0].arguments || '{}');
     // Format and return the data
@@ -143,12 +152,12 @@ The application can store extracted business card data in Google Sheets using th
 async function appendToSheet(data, sheetName = 'crm', includeTimestamp = true) {
   // Get the sheet headers
   const headers = await getSheetHeaders(sheetName);
-  
+
   // Map the data to the sheet columns
   const rowData = headers.map((header, index) => {
     // Logic to map data to headers
   });
-  
+
   // Append the row to the sheet
   await sheets.spreadsheets.values.append({...});
 }
@@ -186,6 +195,7 @@ To modify the Telegram interaction:
 2. Add new Telegram API methods in `connectors/telegram/utils.js` as needed
 
 Available utilities:
+
 - `sendTelegramAction`: Send typing indicators or other actions
 - `sendTelegramMessage`: Send text messages to users
 - `sendTelegramPhoto`: Send image responses
@@ -195,6 +205,7 @@ Available utilities:
 ### Data Storage
 
 The primary storage mechanism is Google Sheets:
+
 - Configure in `utils/sheets.js`
 - Customize the sheet structure by updating the column mapping
 - Default tab name is 'crm' with headers: Timestamp, Full Name, First Name, Email, Company, Mobile
@@ -210,6 +221,7 @@ To test changes:
 5. Check console logs for debugging information
 
 Effective debugging involves:
-- Monitoring the console for log messages from `agentExtraction` 
+
+- Monitoring the console for log messages from `agentExtraction`
 - Inspecting OpenAI responses when troubleshooting extraction issues
 - Checking Telegram webhook configurations when testing bot interaction

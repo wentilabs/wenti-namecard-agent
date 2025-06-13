@@ -3,9 +3,10 @@ const axios = require('axios').default;
 
 const { exec } = require('child_process');
 
-const telegramBotToken = process.env.NODE_ENV === 'dev'
-? process.env.LOCAL_TELEGRAM_BOT_TOKEN
-: process.env.TELEGRAM_BOT_TOKEN;
+const telegramBotToken =
+  process.env.NODE_ENV === 'dev'
+    ? process.env.LOCAL_TELEGRAM_BOT_TOKEN
+    : process.env.TELEGRAM_BOT_TOKEN;
 
 if (!telegramBotToken) {
   throw new Error('TELEGRAM_BOT_TOKEN is required');
@@ -13,15 +14,14 @@ if (!telegramBotToken) {
 
 async function startTelegramWebhook(customWebhookUrl) {
   // Build the webhook URL from environment variables.
-  const webhookUrl = customWebhookUrl || (process.env.WEBHOOKURL + process.env.WEBHOOKPATH); // Your API Gateway endpoint
+  const webhookUrl = customWebhookUrl || process.env.WEBHOOKURL + process.env.WEBHOOKPATH; // Your API Gateway endpoint
 
   if (!telegramBotToken || !webhookUrl) {
-    throw new Error("Missing TELEGRAM_BOT_TOKEN or TELEGRAM_WEBHOOK_URL environment variable.");
+    throw new Error('Missing TELEGRAM_BOT_TOKEN or TELEGRAM_WEBHOOK_URL environment variable.');
   }
 
   // Using axios.post to set the webhook
   const url = `https://api.telegram.org/bot${telegramBotToken}/setWebhook`;
-  
 
   try {
     const response = await axios.post(url, { url: webhookUrl });
@@ -31,7 +31,7 @@ async function startTelegramWebhook(customWebhookUrl) {
       throw new Error(`Failed to set webhook: ${data.description}`);
     }
 
-    console.log("Webhook set successfully to", webhookUrl);
+    console.log('Webhook set successfully to', webhookUrl);
 
     // Alternatively using curl as a double-check method
     exec(`curl -F "url=${webhookUrl}" ${url}`, (error, stdout, stderr) => {
@@ -48,7 +48,7 @@ async function startTelegramWebhook(customWebhookUrl) {
 
     return data;
   } catch (error) {
-    console.error("Error setting the Telegram webhook:", error);
+    console.error('Error setting the Telegram webhook:', error);
     throw error;
   }
 }
@@ -56,7 +56,7 @@ async function startTelegramWebhook(customWebhookUrl) {
 async function sendTelegramAction(chatId, action) {
   const url = `https://api.telegram.org/bot${telegramBotToken}/sendChatAction`;
 
-//   console.log('url: ', url);
+  //   console.log('url: ', url);
 
   await axios.post(url, {
     chat_id: chatId,
@@ -85,7 +85,7 @@ async function sendTelegramMessage(chatId, text) {
 
 async function sendBatchTelegramMessage(chatIds, text) {
   const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
-  const batchSendMessagePromises = chatIds.map((chatId) =>
+  const batchSendMessagePromises = chatIds.map(chatId =>
     axios.post(url, {
       chat_id: chatId,
       text,
@@ -98,9 +98,9 @@ async function sendBatchTelegramMessage(chatIds, text) {
 async function getPhotoUrl(fileId) {
   const url = `https://api.telegram.org/bot${telegramBotToken}/getFile`;
   const response = await axios.post(url, {
-    file_id: fileId
+    file_id: fileId,
   });
-  
+
   const filePath = response.data.result.file_path;
   return `https://api.telegram.org/file/bot${telegramBotToken}/${filePath}`;
 }
@@ -117,13 +117,12 @@ async function getFilePath(fileId) {
   }
 }
 
-
-module.exports = { 
-  sendTelegramAction, 
-  sendTelegramPhoto, 
-  sendTelegramMessage, 
+module.exports = {
+  sendTelegramAction,
+  sendTelegramPhoto,
+  sendTelegramMessage,
   sendBatchTelegramMessage,
   getPhotoUrl,
   getFilePath,
-  startTelegramWebhook
+  startTelegramWebhook,
 };

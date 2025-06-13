@@ -11,28 +11,28 @@ const { startTelegramWebhook } = require('./connectors/telegram/utils');
 app.use(bodyParser.json());
 
 app.post('/telegram-webhook', async (req, res) => {
-    console.log('telegram handler...');
-    const result = await telegramHandler(req);
-    res.status(result.statusCode).send(result.body);
+  console.log('telegram handler...');
+  const result = await telegramHandler(req);
+  res.status(result.statusCode).send(result.body);
 });
-  
+
 const PORT = process.env.PORT || 3000;
 
 /**
  * Start an ngrok tunnel so that your local server is publically accessible.
  */
 async function startNgrok() {
-    try {
-      const url = await ngrok.connect({
-        addr: PORT,
-        authtoken_from_env: true
-      });
-      console.log('Ngrok tunnel established at:', url);
-      return url;
-    } catch (err) {
-      console.error('Ngrok error:', err);
-      process.exit(1);
-    }
+  try {
+    const url = await ngrok.connect({
+      addr: PORT,
+      authtoken_from_env: true,
+    });
+    console.log('Ngrok tunnel established at:', url);
+    return url;
+  } catch (err) {
+    console.error('Ngrok error:', err);
+    process.exit(1);
+  }
 }
 
 /**
@@ -43,15 +43,14 @@ async function startNgrok() {
  * 4. Optionally notifies the admin.
  */
 async function startServer() {
-    const ngrokUrl = await startNgrok();
-    console.log('Ngrok URL:', ngrokUrl);
-    const webhookUrl = `${ngrokUrl}/telegram-webhook`;
-    await startTelegramWebhook(webhookUrl);
-  
-    app.listen(PORT, () => {
-      console.log(`Local test server running on port ${PORT}`);
-    });
-  
+  const ngrokUrl = await startNgrok();
+  console.log('Ngrok URL:', ngrokUrl);
+  const webhookUrl = `${ngrokUrl}/telegram-webhook`;
+  await startTelegramWebhook(webhookUrl);
+
+  app.listen(PORT, () => {
+    console.log(`Local test server running on port ${PORT}`);
+  });
 }
 
 startServer();

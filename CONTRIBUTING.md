@@ -54,12 +54,14 @@ Enhancement suggestions are tracked as GitHub issues:
 ## Development Setup
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/wenti-namecard-agent.git
    cd wenti-namecard-agent
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -86,6 +88,7 @@ When contributing, you agree that your contributions will be licensed under the 
 ## Get Help
 
 If you need help with your contribution, feel free to:
+
 - Open an issue with your question
 - Contact the maintainers directly
 
