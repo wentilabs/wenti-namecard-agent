@@ -2,3 +2,5 @@
 node_modules/
 serviceAccount.json
 *.zip
+.claude
+.wrangler
