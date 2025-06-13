@@ -1,7 +1,7 @@
 name = "wenti-namecard-agent"
 main = "index.js"
-compatibility_date = "2023-10-30"
-nodejs_compat = true
+compatibility_flags = [ "nodejs_compat" ]
+compatibility_date = "2024-09-23"
 
 # Configuration for different environments
 [env.production]
@@ -16,6 +16,7 @@ name = "wenti-namecard-agent-dev"
 [vars]
 NODE_ENV = "production"
 WEBHOOKPATH = "/telegram-webhook"
+WEBHOOKURL = "http://localhost:8787"
 
 [[kv_namespaces]]
 binding = "WENTI_SECRET_STORE"

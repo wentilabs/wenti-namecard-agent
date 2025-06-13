@@ -1,12 +1,12 @@
-const { agentExtraction } = require('../../agent');
-const { sendTelegramAction, sendTelegramMessage } = require('./utils');
+import { agentExtraction } from '../../agent.js';
+import { sendTelegramAction, sendTelegramMessage } from './utils.js';
 
 /**
  * Handle Telegram webhook events
  * @param {object} event - The webhook event
  * @returns {object} - The response
  */
-async function telegramHandler(event) {
+async function telegramHandler(event, env) {
   let chatId;
 
   // console.log(event)
@@ -35,19 +35,20 @@ async function telegramHandler(event) {
 
     // Acknowledge receipt for photo messages
     if (message.photo) {
-      await sendTelegramAction(chatId, 'typing');
+      await sendTelegramAction(chatId, 'typing', env);
       await sendTelegramMessage(
         chatId,
         'Extracting information from the image... This may take a few seconds.',
+        env
       );
 
       // Run agent extraction
-      const response = await agentExtraction(message);
+      const response = await agentExtraction(message, env);
 
       // Process the response from the agent
       if (response) {
         // Send the formatted message back to the user
-        await sendTelegramMessage(chatId, response.message);
+        await sendTelegramMessage(chatId, response.message, env);
 
         // You can do additional processing here if needed
         // For example, save to database, update Google Sheets, etc.
@@ -57,13 +58,15 @@ async function telegramHandler(event) {
         await sendTelegramMessage(
           chatId,
           "Sorry, I couldn't process that image. Please try again with a clearer image of a business card.",
+          env
         );
       }
     } else {
-      await sendTelegramAction(chatId, 'typing');
+      await sendTelegramAction(chatId, 'typing', env);
       await sendTelegramMessage(
         chatId,
         'Please send me a photo of a business card to extract information.',
+        env
       );
     }
 
@@ -80,6 +83,7 @@ async function telegramHandler(event) {
         await sendTelegramMessage(
           chatId,
           'Sorry, an error occurred while processing your request. Please try again later.',
+          env
         );
       }
     } catch (sendError) {
@@ -93,4 +97,4 @@ async function telegramHandler(event) {
   }
 }
 
-module.exports = { telegramHandler };
+export { telegramHandler };

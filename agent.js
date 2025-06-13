@@ -1,13 +1,38 @@
-const { OpenAI } = require('openai');
+import { OpenAI } from 'openai';
 
-const { getPhotoUrl } = require('./connectors/telegram/utils');
-const { appendToSheet } = require('./utils/sheets');
+import { getPhotoUrl } from './connectors/telegram/utils.js';
+import { appendToSheet } from './utils/sheets.js';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// We'll initialize OpenAI with the proper API key when needed
+let openai;
 
-async function agentExtraction(message) {
+// Helper to get or create the OpenAI instance
+async function getOpenAIClient(env) {
+  if (openai) return openai;
+  
+  let apiKey;
+  
+  // For Cloudflare Workers environment
+  if (typeof env !== 'undefined' && env.WENTI_SECRET_STORE) {
+    apiKey = await env.WENTI_SECRET_STORE.get('OPENAI_API_KEY');
+  } 
+  // For Node.js environment
+  else if (process.env) {
+    apiKey = process.env.OPENAI_API_KEY;
+  }
+  
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is required');
+  }
+  
+  openai = new OpenAI({
+    apiKey: apiKey,
+  });
+  
+  return openai;
+}
+
+async function agentExtraction(message, env) {
   const fieldLabels = {
     full_name: 'Full Name',
     first_name: 'First Name',
@@ -23,7 +48,7 @@ async function agentExtraction(message) {
 
   // Get the largest photo version (last in the array)
   const photoId = message.photo[message.photo.length - 1].file_id;
-  const photoUrl = await getPhotoUrl(photoId);
+  const photoUrl = await getPhotoUrl(photoId, env);
 
   // console.log('Telegram photoUrl:', photoUrl);
 
@@ -81,7 +106,10 @@ async function agentExtraction(message) {
   try {
     console.log('Calling OpenAI for name card extraction');
 
-    const response = await openai.responses.create({
+    // Get the OpenAI client
+    const client = await getOpenAIClient(env);
+    
+    const response = await client.responses.create({
       model: 'gpt-4.1',
       input,
       tools,
@@ -127,7 +155,7 @@ async function agentExtraction(message) {
 
         // Save the extracted data to Google Sheets
         try {
-          await appendToSheet(extractedData);
+          await appendToSheet(extractedData, 'crm', true, env);
           console.log('Data successfully saved to Google Sheets');
         } catch (sheetError) {
           console.error('Failed to save data to Google Sheets:', sheetError);
@@ -169,4 +197,4 @@ async function agentExtraction(message) {
   }
 }
 
-module.exports = { agentExtraction };
+export { agentExtraction };

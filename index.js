@@ -1,28 +1,14 @@
-require('dotenv').config();
-const { telegramHandler } = require('./connectors/telegram');
-const { startTelegramWebhook } = require('./connectors/telegram/utils');
-
-// For AWS Lambda deployment
-// exports.handler = async event => {
-//   const requestPath = event.requestContext.http.path;
-
-//   if (requestPath === '/telegram-webhook') {
-//     console.log('Webhook Called: telegram handler...');
-//     return telegramHandler(event);
-//   }
-
-//   console.log('no handler...');
-//   return {
-//     statusCode: 200,
-//   };
-// };
+import { telegramHandler } from './connectors/telegram';
+import { startTelegramWebhook } from './connectors/telegram/utils';
 
 // Cloudflare Workers entry point
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request));
-});
+export default {
+  async fetch(request, env, ctx) {
+    return await handleRequest(request, env);
+  },
+};
 
-async function handleRequest(request) {
+async function handleRequest(request, env) {
   // Parse URL to get the path
   const url = new URL(request.url);
   const path = url.pathname;
@@ -35,7 +21,7 @@ async function handleRequest(request) {
       const webhookUrl = `${workerUrl.protocol}//${workerUrl.host}/telegram-webhook`;
       
       // Set up the webhook
-      await startTelegramWebhook(webhookUrl);
+      await startTelegramWebhook(webhookUrl, env);
       
       return new Response(JSON.stringify({ 
         success: true, 
@@ -77,7 +63,7 @@ async function handleRequest(request) {
         }
       };
 
-      const result = await telegramHandler(event);
+      const result = await telegramHandler(event, env);
 
       // Return result formatted as a proper Response object
       return new Response(result.body, {
