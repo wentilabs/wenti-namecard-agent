@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { exec } from 'child_process';
+// import { exec } from 'child_process';
 
 // In Cloudflare Worker environment, telegramBotToken will be set later
 // We'll access it from env in the functions that need it
@@ -63,17 +63,17 @@ async function startTelegramWebhook(customWebhookUrl, env) {
     console.log('Webhook set successfully to', webhookUrl);
 
     // Alternatively using curl as a double-check method
-    exec(`curl -F "url=${webhookUrl}" ${url}`, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error setting webhook via curl: ${error.message}`);
-        return;
-      }
-      if (stderr) {
-        console.error(`stderr from curl: ${stderr}`);
-        return;
-      }
-      console.log(`Webhook set via curl successfully: ${stdout}`);
-    });
+    // exec(`curl -F "url=${webhookUrl}" ${url}`, (error, stdout, stderr) => {
+    //   if (error) {
+    //     console.error(`Error setting webhook via curl: ${error.message}`);
+    //     return;
+    //   }
+    //   if (stderr) {
+    //     console.error(`stderr from curl: ${stderr}`);
+    //     return;
+    //   }
+    //   console.log(`Webhook set via curl successfully: ${stdout}`);
+    // });
 
     return data;
   } catch (error) {
