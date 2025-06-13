@@ -19,16 +19,20 @@ name = "wenti-namecard-agent-dev"
 [env.production.vars]
 NODE_ENV = "production"
 WEBHOOKPATH = "/telegram-webhook"
-WEBHOOKURL = "https://wenti-namecard-agent.ethan-495.workers.dev"
+# WEBHOOKURL is dynamically set from the request URL in index.js (no need to hardcode)
 
 [env.development.vars]
 NODE_ENV = "development"
 WEBHOOKPATH = "/telegram-webhook"
+# For development, we'll use a local URL that can be overridden with --var
 WEBHOOKURL = "http://localhost:8787"
 
+# Important: Create your own KV namespace in Cloudflare dashboard and replace this ID
+# Run: wrangler kv:namespace create WENTI_SECRET_STORE
 [[kv_namespaces]]
-binding = "WENTI_SECRET_STORE"
-id = "5be5c3ee647346e888593590a88a16a7"
+binding = "WENTI_SECRET_STORE" 
+# Replace with your own KV namespace ID
+id = "YOUR_KV_NAMESPACE_ID"
 
 
 

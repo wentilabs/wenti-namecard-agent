@@ -1,16 +1,17 @@
 # Deployment Guide
 
-This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambda and configure all necessary services.
+This guide will help you set up and deploy the Wenti Namecard Agent to Cloudflare Workers or AWS Lambda and configure all necessary services.
 
 ## Prerequisites
 
-- AWS account
 - Telegram account
 - OpenAI account
-- Google Cloud Platform account (for Google Sheets integration)
-- Node.js installed on your local machine
+- Google Cloud Platform account (for Google Sheets integration, optional)
+- [Node.js](https://nodejs.org/) (v16 or higher) installed on your local machine
+- [Cloudflare account](https://dash.cloudflare.com/sign-up) (for Workers deployment)
+- AWS account (for Lambda deployment, alternative option)
 
-## Setup Steps
+## Setup Steps - Common for All Deployments
 
 ### 1. Telegram Bot Setup
 
@@ -65,96 +66,184 @@ This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambd
    - Share the sheet with your service account email (with Editor permissions)
    - Copy the Sheet ID from the URL (the long alphanumeric string between `/d/` and `/edit`) as your `GOOGLE_SHEETS_ID`
 
-### 4. AWS Lambda Deployment
+### 4. Deployment Options
 
-1. Prepare your code for Lambda:
+Choose one of the following deployment options based on your preference:
 
+## Option A: Cloudflare Workers Deployment (Recommended)
+
+### A.1. Setup Wrangler CLI
+
+1. Install Wrangler CLI globally:
    ```bash
-   # Clone the repository
-   git clone https://github.com/your-username/wenti-namecard-agent.git
+   npm install -g wrangler
+   ```
+
+2. Login to Cloudflare:
+   ```bash
+   wrangler login
+   ```
+
+### A.2. Configure the Project
+
+1. Clone the repository and install dependencies:
+   ```bash
+   git clone https://github.com/yourusername/wenti-namecard-agent.git
    cd wenti-namecard-agent
-
-   # Install dependencies
    npm install
-
-   # Create a ZIP file for Lambda
-   zip -r function.zip .
    ```
 
-2. Create a Lambda function:
-
-   - Go to the [AWS Lambda Console](https://console.aws.amazon.com/lambda)
-   - Click "Create function"
-   - Select "Author from scratch"
-   - Set a function name
-   - Select Node.js runtime (version 18.x or later)
-   - For architecture, choose x86_64
-   - Click "Create function"
-
-3. Upload your code:
-
-   - In the function overview, scroll to the "Code source" section
-   - Click "Upload from" > ".zip file"
-   - Upload your function.zip file
-
-4. Configure environment variables:
-
-   - Scroll down to the "Configuration" tab
-   - Click "Environment variables"
-   - Add all the required environment variables:
-     - `TELEGRAM_BOT_TOKEN`
-     - `OPENAI_API_KEY`
-     - `SUPABASE_URL`
-     - `SUPABASE_SECRET_KEY`
-     - `GOOGLE_SHEETS_ID`
-     - `GOOGLE_SERVICE_ACCOUNT_EMAIL`
-     - `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (make sure to include all newlines, may require escaping)
-
-5. Configure Lambda settings:
-
-   - Increase the timeout to at least 30 seconds (recommended: 1 minute)
-   - Increase memory allocation to at least 512MB
-   - Under "General configuration", click "Edit" and make these changes
-
-6. Create an API Gateway trigger:
-
-   - Click "Add trigger"
-   - Select "API Gateway"
-   - Create a new API: HTTP API
-   - Security: Open
-   - Click "Add"
-
-7. Configure the webhook:
-
-   - After API Gateway is created, copy the API endpoint URL
-   - Set the `WEBHOOKURL` to this URL
-   - Set the `WEBHOOKPATH` to `/telegram-webhook`
-
-8. Manually set the webhook for your Telegram bot:
+2. Create a KV namespace for storing secrets:
+   ```bash
+   wrangler kv:namespace create WENTI_SECRET_STORE
    ```
-   https://api.telegram.org/bot<YOUR_TELEGRAM_BOT_TOKEN>/setWebhook?url=<YOUR_API_GATEWAY_URL>/telegram-webhook
+
+3. Update the `wrangler.toml` file with your KV namespace ID:
+   ```toml
+   [[kv_namespaces]]
+   binding = "WENTI_SECRET_STORE"
+   id = "YOUR_KV_NAMESPACE_ID" # Replace with the ID from the previous command
    ```
+
+### A.3. Add Your Secret Keys
+
+Add your API keys and tokens to the KV store:
+
+```bash
+# Add Telegram Bot Token to KV
+wrangler kv:key put --binding=WENTI_SECRET_STORE "TELEGRAM_BOT_TOKEN" "your_telegram_bot_token"
+
+# Add OpenAI API Key to KV
+wrangler kv:key put --binding=WENTI_SECRET_STORE "OPENAI_API_KEY" "your_openai_api_key"
+
+# Optional: Add Google Sheets integration keys (if using)
+wrangler kv:key put --binding=WENTI_SECRET_STORE "GOOGLE_SHEETS_ID" "your_sheets_id"
+wrangler kv:key put --binding=WENTI_SECRET_STORE "GOOGLE_SERVICE_ACCOUNT_EMAIL" "your_service_account_email"
+wrangler kv:key put --binding=WENTI_SECRET_STORE "GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY" "your_private_key"
+```
+
+Alternatively, you can use Wrangler secrets (not stored in KV):
+
+```bash
+wrangler secret put TELEGRAM_BOT_TOKEN
+wrangler secret put OPENAI_API_KEY
+# ... (other secrets as needed)
+```
+
+### A.4. Deploy to Cloudflare Workers
+
+Deploy your bot to production:
+
+```bash
+wrangler deploy --env production
+```
+
+Note the URL of your deployed worker, which will look like:
+```
+https://wenti-namecard-agent-prod.yourusername.workers.dev
+```
+
+### A.5. Set Up the Telegram Webhook
+
+Visit your worker URL with the `/setup-webhook` path to automatically configure the Telegram webhook:
+
+```
+https://wenti-namecard-agent-prod.yourusername.workers.dev/setup-webhook
+```
+
+## Option B: AWS Lambda Deployment
+
+### B.1. Prepare your code for Lambda:
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/wenti-namecard-agent.git
+cd wenti-namecard-agent
+
+# Install dependencies
+npm install
+
+# Create a ZIP file for Lambda
+zip -r function.zip .
+```
+
+### B.2. Create a Lambda function:
+
+- Go to the [AWS Lambda Console](https://console.aws.amazon.com/lambda)
+- Click "Create function"
+- Select "Author from scratch"
+- Set a function name
+- Select Node.js runtime (version 18.x or later)
+- For architecture, choose x86_64
+- Click "Create function"
+
+### B.3. Upload your code:
+
+- In the function overview, scroll to the "Code source" section
+- Click "Upload from" > ".zip file"
+- Upload your function.zip file
+
+### B.4. Configure environment variables:
+
+- Scroll down to the "Configuration" tab
+- Click "Environment variables"
+- Add all the required environment variables:
+  - `TELEGRAM_BOT_TOKEN`
+  - `OPENAI_API_KEY`
+  - `GOOGLE_SHEETS_ID` (optional)
+  - `GOOGLE_SERVICE_ACCOUNT_EMAIL` (optional)
+  - `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (optional, make sure to include all newlines, may require escaping)
+
+### B.5. Configure Lambda settings:
+
+- Increase the timeout to at least 30 seconds (recommended: 1 minute)
+- Increase memory allocation to at least 512MB
+- Under "General configuration", click "Edit" and make these changes
+
+### B.6. Create an API Gateway trigger:
+
+- Click "Add trigger"
+- Select "API Gateway"
+- Create a new API: HTTP API
+- Security: Open
+- Click "Add"
+
+### B.7. Configure the webhook:
+
+- After API Gateway is created, copy the API endpoint URL
+- Set the `WEBHOOKURL` to this URL
+- Set the `WEBHOOKPATH` to `/telegram-webhook`
+
+### B.8. Manually set the webhook for your Telegram bot:
+```
+https://api.telegram.org/bot<YOUR_TELEGRAM_BOT_TOKEN>/setWebhook?url=<YOUR_API_GATEWAY_URL>/telegram-webhook
+```
 
 ### 5. Test the Deployment
 
 1. Open Telegram and start a chat with your bot
 2. Send a business card image
 3. The bot should respond with the extracted information
-4. Check the CloudWatch logs in AWS if you encounter any issues
+4. Check logs in your platform (Cloudflare Dashboard or AWS CloudWatch) if you encounter any issues
 
 ## Troubleshooting
 
 ### Webhook Issues
 
 - Ensure the webhook URL is correct and publicly accessible
-- Check if API Gateway is properly configured
-- Verify that the Telegram Bot Token is valid
+- For AWS: Check if API Gateway is properly configured
+- For Cloudflare: Verify the route is handling requests correctly
+- Verify that the Telegram Bot Token is valid by visiting:
+  ```
+  https://api.telegram.org/bot<YOUR_TOKEN>/getWebhookInfo
+  ```
 
-### Lambda Execution Issues
+### Execution Issues
 
-- Check CloudWatch logs for error messages
-- Ensure all environment variables are set correctly
-- Verify that the Lambda has sufficient timeout and memory settings
+- For AWS: Check CloudWatch logs for error messages
+- For Cloudflare: View logs in the Cloudflare Dashboard under Workers → your-worker → Logs
+- Ensure all environment variables and secrets are set correctly
+- For AWS: Verify that the Lambda has sufficient timeout and memory settings
 
 ### Image Processing Issues
 
@@ -171,20 +260,39 @@ This guide will help you set up and deploy the Wenti Namecard Agent to AWS Lambd
 
 ### Custom Domain
 
-To use a custom domain with your API Gateway:
+#### For Cloudflare Workers:
+1. Register a domain with Cloudflare or add an existing domain to your Cloudflare account
+2. In the Cloudflare dashboard, go to Workers & Pages → your-worker → Triggers → Custom Domains
+3. Add your custom domain and follow the DNS configuration instructions
 
+#### For AWS API Gateway:
 1. Register a domain and set up an SSL certificate using AWS Certificate Manager
 2. Create a custom domain name in API Gateway
 3. Configure DNS settings to point to the API Gateway endpoint
 
-### CloudFormation/Terraform Deployment
+### Infrastructure as Code
 
-For production use, consider using Infrastructure as Code (IaC) tools like CloudFormation or Terraform to manage your AWS resources.
+- For Cloudflare: Use [Terraform](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/worker_script) to manage your Workers
+- For AWS: Use CloudFormation or Terraform to manage your AWS resources
 
 ### Monitoring
 
-Set up CloudWatch Alarms to monitor Lambda execution errors and response times.
+- For Cloudflare: Use Workers Analytics in the Cloudflare Dashboard
+- For AWS: Set up CloudWatch Alarms to monitor Lambda execution errors and response times
 
 ### Cost Management
 
-Configure AWS Budgets to track and manage costs for your Lambda function, API Gateway, and other AWS services.
+- For Cloudflare: Workers has a generous free tier and predictable pricing
+- For AWS: Configure AWS Budgets to track and manage costs for your Lambda function, API Gateway, and other AWS services
+
+## Development Workflow
+
+For local development and testing:
+
+```bash
+# Run the bot locally with ngrok tunnel
+node dev-index.js
+
+# For Cloudflare Workers development
+wrangler dev
+```

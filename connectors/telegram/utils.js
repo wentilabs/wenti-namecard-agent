@@ -32,11 +32,11 @@ async function startTelegramWebhook(customWebhookUrl, env) {
   // Build the webhook URL from environment variables or parameters
   let webhookUrl = customWebhookUrl;
   
-  // If no custom URL, try environment variables
+  // If no custom URL was provided, try to use environment variables
   if (!webhookUrl) {
     // For Cloudflare Worker environment
     if (env && env.WEBHOOKPATH) {
-      // Use the current host + path
+      // Use the env.WEBHOOKURL if available (for development)
       webhookUrl = env.WEBHOOKURL ? env.WEBHOOKURL + env.WEBHOOKPATH : null;
     }
     // For Node.js environment
