@@ -1,0 +1,36 @@
+name = "wenti-namecard-agent"
+main = "index.js"
+compatibility_date = "2023-10-30"
+node_compat = true
+
+# Configuration for different environments
+[env.production]
+name = "wenti-namecard-agent-prod"
+# Production-specific settings can go here
+
+[env.development]
+name = "wenti-namecard-agent-dev"
+# Development-specific settings can go here
+
+# Define environment variables (non-sensitive)
+[vars]
+NODE_ENV = "production"
+WEBHOOKPATH = "/telegram-webhook"
+
+# For sensitive variables, use Cloudflare Dashboard or wrangler secret command:
+# wrangler secret put TELEGRAM_BOT_TOKEN
+# wrangler secret put OPENAI_API_KEY
+# wrangler secret put GOOGLE_SHEETS_ID
+# wrangler secret put GOOGLE_SERVICE_ACCOUNT_EMAIL
+# wrangler secret put GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+
+# Optional: Add KV namespace for data storage
+# Replace YOUR_KV_NAMESPACE_ID with the actual ID from Cloudflare Dashboard
+# [[kv_namespaces]]
+# binding = "BUSINESS_CARDS"
+# id = "YOUR_KV_NAMESPACE_ID"
+# preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"  # For development environment
+
+# Customize the build if needed
+[build]
+command = "npm install"

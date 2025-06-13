@@ -10,8 +10,9 @@ A Telegram bot that extracts structured data from business cards using OpenAI's 
 - 🤖 **OpenAI Vision API**: Utilizes GPT-4 Vision for accurate data extraction
 - 📊 **Google Sheets Integration**: Automatically stores extracted data in Google Sheets
 - 🔄 **Dynamic Column Mapping**: Adapts to your custom Google Sheet headers
-- 🚀 **Serverless Ready**: Designed for AWS Lambda deployment
+- 🚀 **Serverless Ready**: Deploy instantly to Cloudflare Workers or AWS Lambda
 - 🧪 **Local Development**: Includes development server with ngrok tunneling
+- ⚡ **Fast Global Edge Network**: Cloudflare Workers for low-latency responses worldwide
 
 ## 📋 Prerequisites
 
@@ -19,7 +20,7 @@ A Telegram bot that extracts structured data from business cards using OpenAI's 
 - Telegram Bot Token (from BotFather)
 - OpenAI API Key with at least GPT-4o access
 - Google Service Account with Sheets API access
-- AWS account for Lambda deployment (optional)
+- Cloudflare account (free tier available) or AWS account for deployment
 
 ## 🚀 Quick Start
 
@@ -69,11 +70,17 @@ Create a Google Sheet with the following headers in a tab named "crm":
 
 ### 5. Run development server
 
+For local development with ngrok tunneling:
 ```bash
 node dev-index.js
 ```
 
-This will start a local server with ngrok tunneling to make your development environment accessible to Telegram.
+For Cloudflare Workers local development:
+```bash
+npm run dev
+```
+
+Either method will start a local server to make your development environment accessible to Telegram webhooks.
 
 ## 🔧 How It Works
 
@@ -93,17 +100,52 @@ This will start a local server with ngrok tunneling to make your development env
 │       ├── index.js          # Telegram webhook handler
 │       └── utils.js          # Telegram API utilities
 ├── dev-index.js              # Development server with ngrok
-├── index.js                  # Production entry point for AWS Lambda
+├── index.js                  # Production entry point (Workers/Lambda compatible)
 ├── utils/
-│   ├── sheets.js             # Google Sheets integration
-│   └── supabase.js           # File storage utilities (optional)
+│   └── sheets.js             # Google Sheets integration
+├── wrangler.toml             # Cloudflare Workers configuration
 ├── DEPLOYMENT.md             # Detailed deployment guide
 └── .env                      # Environment variables (create this)
 ```
 
 ## 🏗️ Deployment
 
-For detailed deployment instructions, refer to the [DEPLOYMENT.md](DEPLOYMENT.md) file, which includes:
+### One-Click Deployment with Cloudflare Workers
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/wentilabs/wenti-namecard-agent)
+
+1. Click the button above to fork and deploy to Cloudflare Workers
+2. Configure your environment variables in the Cloudflare Dashboard:
+   - `TELEGRAM_BOT_TOKEN`
+   - `OPENAI_API_KEY`
+   - `GOOGLE_SHEETS_ID`
+   - `GOOGLE_SERVICE_ACCOUNT_EMAIL`
+   - `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`
+3. Set up your webhook URL with Telegram: `https://your-worker.your-subdomain.workers.dev/telegram-webhook`
+
+### Manual Deployment with Wrangler
+
+```bash
+# Install Wrangler CLI
+npm install -g wrangler
+
+# Login to your Cloudflare account
+wrangler login
+
+# Add your secrets
+wrangler secret put TELEGRAM_BOT_TOKEN
+wrangler secret put OPENAI_API_KEY
+wrangler secret put GOOGLE_SHEETS_ID
+wrangler secret put GOOGLE_SERVICE_ACCOUNT_EMAIL
+wrangler secret put GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+
+# Deploy to Cloudflare Workers
+npm run deploy
+```
+
+### AWS Lambda Deployment
+
+For AWS Lambda deployment instructions, refer to the [DEPLOYMENT.md](DEPLOYMENT.md) file, which includes:
 
 - AWS Lambda setup instructions
 - Telegram Bot configuration
