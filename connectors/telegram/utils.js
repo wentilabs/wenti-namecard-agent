@@ -1,4 +1,3 @@
-require('dotenv').config();
 const axios = require('axios').default;
 
 const { exec } = require('child_process');

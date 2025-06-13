@@ -20,10 +20,6 @@ WEBHOOKPATH=/telegram-webhook
 # OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key
 
-# Supabase Configuration
-SUPABASE_URL=your_supabase_url
-SUPABASE_SECRET_KEY=your_supabase_secret_key
-
 # Google Sheets Configuration (optional, for data storage)
 GOOGLE_SHEETS_ID=your_google_sheet_id
 GOOGLE_SERVICE_ACCOUNT_EMAIL=your_service_account_email
@@ -71,13 +67,13 @@ The project follows a modular architecture:
 
    - Core business logic for image processing
    - Orchestrates the extraction flow:
-     1. Download and store images from Telegram to Supabase
+     1. Download and store images from Telegram 
      2. Process images with OpenAI using function calling for structured data
      3. Format and return extracted data
 
 4. **Utilities**: `utils/`
    - `sheets.js`: Google Sheets integration for storing extracted data
-   - References to `supabase.js` exist but the file may not be present yet
+
 
 ## Data Flow
 

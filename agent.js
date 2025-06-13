@@ -1,4 +1,3 @@
-require('dotenv').config();
 const { OpenAI } = require('openai');
 
 const { getPhotoUrl } = require('./connectors/telegram/utils');
