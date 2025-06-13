@@ -3,6 +3,9 @@ main = "index.js"
 compatibility_flags = [ "nodejs_compat" ]
 compatibility_date = "2024-09-23"
 
+[observability.logs]
+enabled = true
+
 # Configuration for different environments
 [env.production]
 name = "wenti-namecard-agent-prod"
@@ -13,14 +16,21 @@ name = "wenti-namecard-agent-dev"
 # Development-specific settings can go here
 
 # Define environment variables (non-sensitive)
-[vars]
+[env.production.vars]
 NODE_ENV = "production"
+WEBHOOKPATH = "/telegram-webhook"
+WEBHOOKURL = "https://wenti-namecard-agent.ethan-495.workers.dev"
+
+[env.development.vars]
+NODE_ENV = "development"
 WEBHOOKPATH = "/telegram-webhook"
 WEBHOOKURL = "http://localhost:8787"
 
 [[kv_namespaces]]
 binding = "WENTI_SECRET_STORE"
 id = "5be5c3ee647346e888593590a88a16a7"
+
+
 
 # For sensitive variables, use Cloudflare Dashboard or wrangler secret command:
 # wrangler secret put TELEGRAM_BOT_TOKEN
