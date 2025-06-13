@@ -17,10 +17,13 @@ async function telegramHandler(event, env) {
   try {
     let eventBody;
 
-    if (process.env.NODE_ENV === 'dev') {
-      eventBody = event.body;
-    } else {
+    // For Cloudflare Workers, the body is already parsed as an object
+    if (typeof event.body === 'string') {
+      // If body is a string (like in AWS Lambda), parse it
       eventBody = JSON.parse(event.body);
+    } else {
+      // If body is already an object (like in Cloudflare Workers), use it directly
+      eventBody = event.body;
     }
     const { message } = eventBody;
 
