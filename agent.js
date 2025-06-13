@@ -139,7 +139,7 @@ async function agentExtraction(message){
         // Fallback message if we couldn't extract meaningful data
         return {
             success: false,
-            message: "I couldn't extract information from this image. Please upload a clearer image of a business card.",
+            message: "I couldn't extract information from this image. Please upload a clearer image of a business card and make sure the name card is upright.",
             rawData: null
         };
     } catch (error) {

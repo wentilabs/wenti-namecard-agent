@@ -139,15 +139,14 @@ https://github.com/wentilabs/wenti-namecard-agent
 
 ## 📚 Additional Preparation Items
 
-Before open-sourcing:
+Next Steps:
 
-1. **License File**: Create a `LICENSE` file with MIT License text
-2. **Contributing Guide**: Consider creating a `CONTRIBUTING.md` with more detailed contribution guidelines
-3. **Code of Conduct**: Add a `CODE_OF_CONDUCT.md` file
-4. **Issue Templates**: Create `.github/ISSUE_TEMPLATE/` directory with issue templates
-5. **Pull Request Template**: Add `.github/PULL_REQUEST_TEMPLATE.md`
-6. **Security Policy**: Add a `SECURITY.md` file describing how to report security vulnerabilities
-7. **Demo Images**: Replace placeholder images with actual screenshots of your bot in action
+1. **Contributing Guide**: Consider creating a `CONTRIBUTING.md` with more detailed contribution guidelines
+2. **Code of Conduct**: Add a `CODE_OF_CONDUCT.md` file
+3. **Issue Templates**: Create `.github/ISSUE_TEMPLATE/` directory with issue templates
+4. **Pull Request Template**: Add `.github/PULL_REQUEST_TEMPLATE.md`
+5. **Security Policy**: Add a `SECURITY.md` file describing how to report security vulnerabilities
+6. **Demo Images**: Replace placeholder images with actual screenshots of your bot in action
 
 ## 📧 Contact
 
